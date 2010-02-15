@@ -9,6 +9,8 @@ serve most people who wants to user hessian protocol in perl.
 this package aim to make itself available with little module
 dependency outside core modules.
 
+best use with a reasonably recent Perl, best 5.8.0 or later, although
+5.6.0+ should work too.
 
 INSTALLATION
 

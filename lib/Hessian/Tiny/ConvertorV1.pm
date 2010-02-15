@@ -11,7 +11,7 @@ use Math::BigInt;
 use Encode;
 use Tie::RefHash;
 
-use Hessian::Type;
+use Hessian::Tiny::Type;
 
 # serializer
 sub write_call {
@@ -45,16 +45,16 @@ sub _make_serializer_v1 {
       when('Hessian::Type::False') { $wr->('F') }
       when('Hessian::Type::Date')  { $wr->('d');
                                      $wr->('Math::BigInt' eq ref $$x{data}
-                                       ? Hessian::Type::_pack_q($$x{data})
-                                       : Hessian::Type::_l2n(pack 'q', $$x{data})
+                                       ? Hessian::Tiny::Type::_pack_q($$x{data})
+                                       : Hessian::Tiny::Type::_l2n(pack 'q', $$x{data})
                                      );
                                    }
-      when('DateTime') { $wr->('d'.Hessian::Type::_pack_q(Math::BigInt->new($x->epoch)->bmul(1000)))}
+      when('DateTime') { $wr->('d'.Hessian::Tiny::Type::_pack_q(Math::BigInt->new($x->epoch)->bmul(1000)))}
 
-      when('Hessian::Type::Integer') { $wr->('I' . Hessian::Type::_l2n(pack 'l', $$x{data})) }
-      when('Hessian::Type::Long')    { $wr->('L' . Hessian::Type::_pack_q($$x{data})) }
-      when('Math::BigInt')           { $wr->('L' . Hessian::Type::_pack_q($x))  }
-      when('Hessian::Type::Double')  { $wr->('D' . Hessian::Type::_l2n(pack 'd', $$x{data})) }
+      when('Hessian::Type::Integer') { $wr->('I' . Hessian::Tiny::Type::_l2n(pack 'l', $$x{data})) }
+      when('Hessian::Type::Long')    { $wr->('L' . Hessian::Tiny::Type::_pack_q($$x{data})) }
+      when('Math::BigInt')           { $wr->('L' . Hessian::Tiny::Type::_pack_q($x))  }
+      when('Hessian::Type::Double')  { $wr->('D' . Hessian::Tiny::Type::_l2n(pack 'd', $$x{data})) }
 
       when('Hessian::Type::Binary') { _write_chunks($wr,$$x{data})       }
       when('Hessian::Type::String') { _write_chunks($wr,$$x{data},1)     }
@@ -63,7 +63,7 @@ sub _make_serializer_v1 {
 
       when('Hessian::Type::List') { my $idx = _search_ref($refs,$x);
                                     if(defined $idx){
-                                      $wr->('R' . Hessian::Type::_l2n(pack 'l', $idx));
+                                      $wr->('R' . Hessian::Tiny::Type::_l2n(pack 'l', $idx));
                                     }else{
                                       push @$refs,$x;
                                       _write_list($$rf,$wr,$x);
@@ -71,7 +71,7 @@ sub _make_serializer_v1 {
                                   }
       when('ARRAY') { my $idx = _search_ref($refs,$x);
                       if(defined $idx){
-                        $wr->('R' . Hessian::Type::_l2n(pack 'l', $idx));
+                        $wr->('R' . Hessian::Tiny::Type::_l2n(pack 'l', $idx));
                       }else{
                         push @$refs,$x;
                         my $y = Hessian::Type::List->new(length=>scalar @$x,data=>$x);
@@ -80,7 +80,7 @@ sub _make_serializer_v1 {
                     }
       when('Hessian::Type::Map')      { my $idx = _search_ref($refs,$x);
                                         if(defined $idx){
-                                          $wr->('R' . Hessian::Type::_l2n(pack 'l', $idx));
+                                          $wr->('R' . Hessian::Tiny::Type::_l2n(pack 'l', $idx));
                                         }else{
                                           push @$refs,$x;
                                           _write_map($$rf,$wr,$x);
@@ -90,7 +90,7 @@ sub _make_serializer_v1 {
                                    }
       when('HASH') { my $idx = _search_ref($refs,$x);
                      if(defined $idx){
-                       $wr->('R' . Hessian::Type::_l2n(pack 'l', $idx));
+                       $wr->('R' . Hessian::Tiny::Type::_l2n(pack 'l', $idx));
                      }else{
                        push @$refs,$x;
                        my $y = Hessian::Type::Map->new($x);
@@ -99,7 +99,7 @@ sub _make_serializer_v1 {
                    }
       #when('Hessian::Type::Remote')   { _write_remote($wr,$x) }
       #when('Hessian::Type::Fault')    { _write_fault($wr,$x)  }
-      when('REF') { $wr->('R' . Hessian::Type::_l2n(pack'l', first{$$x == $$refs[$_]}(0 .. $#$refs))) }
+      when('REF') { $wr->('R' . Hessian::Tiny::Type::_l2n(pack'l', first{$$x == $$refs[$_]}(0 .. $#$refs))) }
 
       when('') { # guessing begins
         given($x){
@@ -107,16 +107,16 @@ sub _make_serializer_v1 {
                                      if(Math::BigInt->new('-0x80000000')->bcmp($bi) <= 0 &&
                                         Math::BigInt->new(' 0x7fffffff')->bcmp($bi) >= 0
                                      ){ # Integer
-                                       $wr->('I' . Hessian::Type::_l2n(pack 'l', $x));
+                                       $wr->('I' . Hessian::Tiny::Type::_l2n(pack 'l', $x));
                                      }elsif(Math::BigInt->new('-0x8000000000000000')->bcmp($bi) <=0 &&
                                             Math::BigInt->new(' 0x7fffffffffffffff')->bcmp($bi) >=0
                                      ){ # Long
-                                       $wr->('L' . Hessian::Type::_pack_q($x));
+                                       $wr->('L' . Hessian::Tiny::Type::_pack_q($x));
                                      }else{ # too large to be number
                                        _write_chunks($wr,$x,Encode::is_utf8($x,1));
                                      }
                                    }
-          when /^[\+\-]?\d*(\d+\.|\.\d+)\d*$/ { $wr->('D' . Hessian::Type::_l2n(pack 'd', $x)) }
+          when /^[\+\-]?\d*(\d+\.|\.\d+)\d*$/ { $wr->('D' . Hessian::Tiny::Type::_l2n(pack 'd', $x)) }
           when /\D/ { _write_chunks($wr,$x,Encode::is_utf8($x,1)) }
         }
       }
@@ -199,25 +199,25 @@ sub _make_object_reader {
       when('T') { return $h_flg_override ? Hessian::Type::True->new() : 1 }
       when('F') { return $h_flg_override ? Hessian::Type::False->new() : undef }
 
-      when('I') { my $i = unpack 'l', Hessian::Type::_l2n($rd->(4));
+      when('I') { my $i = unpack 'l', Hessian::Tiny::Type::_l2n($rd->(4));
                   return $h_flg_override
                   ? Hessian::Type::Integer->new($i)
                   : $i
                   ;
                 } # int
-      when('L') { my $l = Hessian::Type::_unpack_q($rd->(8));
+      when('L') { my $l = Hessian::Tiny::Type::_unpack_q($rd->(8));
                   return $h_flg_override
                   ? $l
                   : $l->bstr
                   ;
                 } # long
-      when('D') { my $i = unpack 'd', Hessian::Type::_l2n($rd->(8));
+      when('D') { my $i = unpack 'd', Hessian::Tiny::Type::_l2n($rd->(8));
                   return $h_flg_override
                   ? Hessian::Type::Double->new($i)
                   : $i
                   ;
                 } # double
-      when('d') { my$msec = Hessian::Type::_unpack_q($rd->(8));
+      when('d') { my$msec = Hessian::Tiny::Type::_unpack_q($rd->(8));
                   return $h_flg_override
                   ? Hessian::Type::Date->new($msec)
                   : $msec->bdiv(1000)->bstr
@@ -247,7 +247,7 @@ sub _make_object_reader {
                   _read_map( $$rf,$rd,$m,$h_flg_override);
                   return $res;
                 } # map
-      when('R') { return $refs->[unpack 'l', Hessian::Type::_l2n($rd->(4))] }
+      when('R') { return $refs->[unpack 'l', Hessian::Tiny::Type::_l2n($rd->(4))] }
       when('H') { tie my %h, 'Tie::RefHash::Nestable';
                   my $hdr = Hessian::Type::Header->new(\%h);
                   _read_map($$rf,$rd, $hdr);
@@ -287,7 +287,7 @@ sub _read_list {
   }else{ $rd->(-1) }
 
   if('l' eq $rd->(1)){
-    $list->{length} = unpack 'l', Hessian::Type::_l2n($rd->(4));
+    $list->{length} = unpack 'l', Hessian::Tiny::Type::_l2n($rd->(4));
   }else{ $rd->(-1) }
 
   while('z' ne $rd->(1)){

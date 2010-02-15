@@ -1,5 +1,5 @@
 package Hessian::Tiny::Client;
-
+require 5.6.0;
 use warnings;
 use strict;
 
@@ -23,7 +23,7 @@ Version 1.00
 
 =cut
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 our $ErrStr;
 
 
@@ -128,7 +128,7 @@ sub call {
 
 # write call to fh
   eval{
-    my $wtr = Hessian::Type::_make_writer($call_fh);
+    my $wtr = Hessian::Tiny::Type::_make_writer($call_fh);
     if( $self->{version} and $self->{version} == 2 ){
       Hessian::Tiny::ConvertorV2::write_call($wtr,$method_name,@hessian_params);
     }else{
@@ -171,7 +171,7 @@ sub call {
     $reply_fh->close;
     $self->elog("reply written to $reply_fn");
 
-    my($st,$re) = _read_reply(Hessian::Type::_make_reader($reply_fn),$self->{hessian_flag});
+    my($st,$re) = _read_reply(Hessian::Tiny::Type::_make_reader($reply_fn),$self->{hessian_flag});
     $self->elog("Fault: $re->{code}; $re->{message}") if $st && 'Hessian::Type::Fault' eq ref $re;
     $self->elog($re) if $st == 2;
     return $st,$re;

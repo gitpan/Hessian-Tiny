@@ -1,4 +1,4 @@
-package Hessian::Type;
+package Hessian::Tiny::Type;
 
 use warnings;
 use strict;
@@ -16,25 +16,25 @@ sub new {
 }
 
 # Hessian 1.0 Types
-{ package Hessian::Type::Null;    use base 'Hessian::Type'; }
-{ package Hessian::Type::True;    use base 'Hessian::Type'; }
-{ package Hessian::Type::False;   use base 'Hessian::Type'; }
-{ package Hessian::Type::Date;    use base 'Hessian::Type'; }
-{ package Hessian::Type::Integer; use base 'Hessian::Type'; }
-{ package Hessian::Type::Long;    use base 'Hessian::Type'; }
-{ package Hessian::Type::Binary;  use base 'Hessian::Type'; }
-{ package Hessian::Type::String;  use base 'Hessian::Type'; }
-{ package Hessian::Type::XML;     use base 'Hessian::Type'; } # 1.0 only
-{ package Hessian::Type::Double;  use base 'Hessian::Type'; }
-{ package Hessian::Type::List;    use base 'Hessian::Type'; }
-{ package Hessian::Type::Map;     use base 'Hessian::Type'; }
-{ package Hessian::Type::Header;  use base 'Hessian::Type'; }
-{ package Hessian::Type::Remote;  use base 'Hessian::Type'; }
-{ package Hessian::Type::Fault;   use base 'Hessian::Type'; }
+{ package Hessian::Type::Null;    use base 'Hessian::Tiny::Type'; }
+{ package Hessian::Type::True;    use base 'Hessian::Tiny::Type'; }
+{ package Hessian::Type::False;   use base 'Hessian::Tiny::Type'; }
+{ package Hessian::Type::Date;    use base 'Hessian::Tiny::Type'; }
+{ package Hessian::Type::Integer; use base 'Hessian::Tiny::Type'; }
+{ package Hessian::Type::Long;    use base 'Hessian::Tiny::Type'; }
+{ package Hessian::Type::Binary;  use base 'Hessian::Tiny::Type'; }
+{ package Hessian::Type::String;  use base 'Hessian::Tiny::Type'; }
+{ package Hessian::Type::XML;     use base 'Hessian::Tiny::Type'; } # 1.0 only
+{ package Hessian::Type::Double;  use base 'Hessian::Tiny::Type'; }
+{ package Hessian::Type::List;    use base 'Hessian::Tiny::Type'; }
+{ package Hessian::Type::Map;     use base 'Hessian::Tiny::Type'; }
+{ package Hessian::Type::Header;  use base 'Hessian::Tiny::Type'; }
+{ package Hessian::Type::Remote;  use base 'Hessian::Tiny::Type'; }
+{ package Hessian::Type::Fault;   use base 'Hessian::Tiny::Type'; }
 
 # Hessian 2.0 Types
-{ package Hessian::Type::Class;   use base 'Hessian::Type'; }
-{ package Hessian::Type::Object;  use base 'Hessian::Type'; }
+{ package Hessian::Type::Class;   use base 'Hessian::Tiny::Type'; }
+{ package Hessian::Type::Object;  use base 'Hessian::Tiny::Type'; }
 
 # helper functions for Convertor use
 sub _pack_q { # pack (64-bit) signed long
