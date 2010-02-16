@@ -6,11 +6,11 @@ only a client is included in this release, which should
 serve most people who wants to user hessian protocol in perl.
 (server may come later, if necessary at all)
 
-this package aim to make itself available with little module
-dependency outside core modules.
+this package aim to make itself usable with little
+dependencies outside core modules.
 
-best use with a reasonably recent Perl, best 5.8.0 or later, although
-5.6.0+ should work too.
+best use with a reasonably recent Perl, i.e. 5.8.0 or later, although
+5.6.0+ should also work.
 
 INSTALLATION
 

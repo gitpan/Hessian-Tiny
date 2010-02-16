@@ -23,7 +23,7 @@ Version 1.00
 
 =cut
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 our $ErrStr;
 
 
@@ -122,9 +122,9 @@ sub call {
   my($call_fh,$call_fn);
   ($call_fh,$call_fn) = File::Temp::tempfile(
       UNLINK => ($self->{debug} ? 0 : 1),
-      SUFFIX => '.dat'
+      SUFFIX => '.hessian_call.dat'
   );
-  return 2, $self->elog("call, open temp call file failed $!") unless defined $call_fh;
+  return 2, $self->_elog("call, open temp call file failed $!") unless defined $call_fh;
 
 # write call to fh
   eval{
@@ -135,8 +135,8 @@ sub call {
       Hessian::Tiny::ConvertorV1::write_call($wtr,$method_name,@hessian_params);
     }
     1;
-  }or return 2, $self->elog("write_call: $@");
-  $self->elog("call: written ($call_fn)");
+  }or return 2, $self->_elog("write_call: $@");
+  $self->_elog("call: written ($call_fn)");
 
 # write call successful, rewind
   $call_fh->close;
@@ -164,26 +164,26 @@ sub call {
     my($reply_fh,$reply_fn);
     ($reply_fh,$reply_fn) = File::Temp::tempfile(
          UNLINK => ($self->{debug} ? 0 : 1),
-         SUFFIX => '.dat'
+         SUFFIX => '.hessian_reply.dat'
     );
-    return 2, $self->elog("call, open temp reply file failed $!") unless defined $reply_fh;
+    return 2, $self->_elog("call, open temp reply file failed $!") unless defined $reply_fh;
     print $reply_fh $http_response->content;
     $reply_fh->close;
-    $self->elog("reply written to $reply_fn");
+    $self->_elog("reply written to $reply_fn");
 
     my($st,$re) = _read_reply(Hessian::Tiny::Type::_make_reader($reply_fn),$self->{hessian_flag});
-    $self->elog("Fault: $re->{code}; $re->{message}") if $st && 'Hessian::Type::Fault' eq ref $re;
-    $self->elog($re) if $st == 2;
+    $self->_elog("Fault: $re->{code}; $re->{message}") if $st && 'Hessian::Type::Fault' eq ref $re;
+    $self->_elog($re) if $st == 2;
     return $st,$re;
   } # if http successful
 
 # http level failure
-  return 2, $self->elog('Hessian http response unsuccessful: ',
+  return 2, $self->_elog('Hessian http response unsuccessful: ',
     $http_response->status_line, $http_response->error_as_HTML);
 
 }
 
-sub elog { my $self=shift;$ErrStr=join'',@_;print STDERR @_,"\n" if $self->{debug}; join '',@_ }
+sub _elog { my $self=shift;$ErrStr=join'',@_;print STDERR @_,"\n" if $self->{debug}; join '',@_ }
 sub _read_reply {
   my($reader,$hessian_flag) = @_;
   my $buf = $reader->(3);

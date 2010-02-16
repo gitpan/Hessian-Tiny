@@ -13,7 +13,14 @@ use Tie::RefHash;
 
 use Hessian::Tiny::Type;
 
-# serializer
+=head1 SUBROUTINES/METHODS
+
+=header2 write_call
+
+  write hessian v1 call string
+
+=cut
+
 sub write_call {
   my($writer,$method_name,@hessian_params) = @_;
   $writer->("c\x01\x00m");
