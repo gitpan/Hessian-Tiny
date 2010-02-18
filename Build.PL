@@ -8,7 +8,7 @@ my $builder = Module::Build->new(
     dist_author         => q{DUL <ling.du@gmail.com>},
     dist_version_from   => 'lib/Hessian/Tiny/Client.pm',
     build_requires => {
-        'Test::More'    => '9.4', #subtest feature used
+        'Test::More'    => '0.94', #subtest feature used
     },
     requires => {
         'Config'        => 0,

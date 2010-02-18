@@ -3,21 +3,25 @@ package Hessian::Tiny::ConvertorV2;
 use warnings;
 use strict;
 
+use Encode ();
 use Switch 'Perl6';
 use List::Util qw(first);
-use Scalar::Util;
-use IO::Handle;
-use Math::BigInt;
-use Encode;
-use Tie::RefHash;
+use IO::Handle ();
+use Scalar::Util ();
+use Math::BigInt ();
+use Tie::RefHash ();
 
-use Hessian::Tiny::Type;
+use Hessian::Tiny::Type ();
+
+=head1 NAME
+
+Hessian::Tiny::ConvertorV2 - v2 serializer/deserializer
 
 =head1 SUBROUTINES/METHODS
 
-=header2 write_call
+=head2 write_call
 
-  write hessian v2 call string
+write hessian v2 call string
 
 =cut
 

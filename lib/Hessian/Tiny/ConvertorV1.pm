@@ -3,21 +3,25 @@ package Hessian::Tiny::ConvertorV1;
 use warnings;
 use strict;
 
+use Encode ();
 use Switch 'Perl6';
 use List::Util qw(first);
-use Scalar::Util;
-use IO::Handle;
-use Math::BigInt;
-use Encode;
-use Tie::RefHash;
+use IO::Handle ();
+use Scalar::Util ();
+use Math::BigInt ();
+use Tie::RefHash ();
 
-use Hessian::Tiny::Type;
+use Hessian::Tiny::Type ();
+
+=head1 NAME
+
+Hessian::Tiny::ConvertorV1 - v1 serializer/deserializer
 
 =head1 SUBROUTINES/METHODS
 
-=header2 write_call
+=head2 write_call
 
-  write hessian v1 call string
+write hessian v1 call string
 
 =cut
 
@@ -30,7 +34,7 @@ sub write_call {
   $serializer_v1->($_) for(@hessian_params);
   $writer->('z');
 }
-sub write_reply {
+sub __write_reply { # for future server use
   my($writer,$value) = @_;
   $writer->("r\x01\x00");
   my $serializer_v1 = _make_serializer_v1($writer);

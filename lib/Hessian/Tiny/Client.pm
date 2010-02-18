@@ -19,11 +19,11 @@ Hessian::Tiny::Client - Hessian Client implementation in pure Perl
 
 =head1 VERSION
 
-Version 1.00
+Version 0.05
 
 =cut
 
-our $VERSION = '0.04';
+our $VERSION = '0.05';
 our $ErrStr;
 
 
@@ -219,57 +219,60 @@ sub _read_reply {
   }
 }
 
-=head1 HESSIAN TYPE MAPPING
+=head1 HESSIAN DATA TYPES
 
 =head2 Null
 
     $foo->call('argNull', Hessian::Type::Null->new() );
-    As return value, by default, you will get undef;
-    when 'hessian_flag' is set, you will get Hessian::Type::Null as return.
+
+As return value, by default, you will get undef;
+when 'hessian_flag' is set to true, you will get Hessian::Type::Null as return.
 
 =head2 True
 
     $foo->call('argTrue', Hessian::Type::True->new() );
-    As return value, by default, you will get 1;
-    when 'hessian_flag' is set, you will get Hessian::Type::True as return.
+
+As return value, by default, you will get 1;
+when 'hessian_flag' is set to true, you will get Hessian::Type::True as return.
 
 =head2 False
 
     $foo->call('argFalse', Hessian::Type::False->new() );
-    As return value, by default, you will get undef;
-    when 'hessian_flag' is set, you will get Hessian::Type::False as return.
+
+As return value, by default, you will get undef;
+when 'hessian_flag' is set to true, you will get Hessian::Type::False as return.
 
 =head2 Integer
 
     $foo->call('argInt', 250 );
 
-    No extra typing for Integer type.
-    Note, if the number passed in falls outside the range of signed 32-bit integer,
-    it will be passed as a Long type instead.
+No extra typing for Integer type.
+Note, if the number passed in falls outside the range of signed 32-bit integer,
+it will be passed as a Long type parameter instead.
 
 =head2 Long
 
-    $foo->call('argLong', Math::BigInt->new(100000) ); # normally you have this module already
+    $foo->call('argLong', Math::BigInt->new(100000) ); # core module
     $foo->call('argLong', Hessian::Type::Long->new('100000') ); # same as above
 
-    As return value, by default, you will get string representation of the number;
-    when 'hessian_flag' is set, you will get Math::BigInt as return.
+As return value, by default, you will get string representation of the number;
+when 'hessian_flag' is set to true, you will get Math::BigInt as return.
 
 =head2 Double
 
-    $foo->call('argDouble', 2.50 ); # pass directly, if looks like floating point number
-    $foo->call('argDouble', Hessian::Type::Double(2.50) ); # equivalent
+    $foo->call('argDouble', -2.50 ); # pass directly, if looks like floating point number
+    $foo->call('argDouble', Hessian::Type::Double(-2.50) ); # equivalent
 
-    As return value, by default, you will get the number directly;
-    when 'hessian_flag' is set, you will get Hessian::Type::Double as return.
+As return value, by default, you will get the number directly;
+when 'hessian_flag' is set to true, you will get Hessian::Type::Double as return.
 
 =head2 Date
 
     $foo->call('argDate', Hessian::Type::Date->new($milli_sec) );
     $foo->call('argDate', DateTime->now() ); # if you have this module installed
 
-    As return value, by default, you will get epoch seconds;
-    when 'hessian_flag' is set, you will get Hessian::Type::Date as return.
+As return value, by default, you will get epoch seconds;
+when 'hessian_flag' is set to true, you will get Hessian::Type::Date as return.
 
 =head2 Binary/String
 
@@ -277,17 +280,17 @@ sub _read_reply {
     $foo->call('argString', Hessian::Type::String->new("hello world\n") );
     $foo->call('argString', Unicode::String->new("hello world\n") );
 
-    As return value, by default, you will get the perl string;
-    when 'hessian_flag' is set, you will get Hessian::Type::Binary or
-    Hessian::Type::String object as return.
+As return value, by default, you will get the perl string;
+when 'hessian_flag' is set to true, you will get Hessian::Type::Binary or
+Hessian::Type::String object as return.
 
 =head2 XML
 
     $foo->call('argXML', Hessian::Type::XML->new( $xml_string ) );
 
-    As return value, by default, you will get xml string;
-    when 'hessian_flag' is set, you will get Hessian::Type::XML as return.
-    Note, XML type is removed from Hessian 2.0
+As return value, by default, you will get xml string;
+when 'hessian_flag' is set to true, you will get Hessian::Type::XML as return.
+Note, XML type is removed from Hessian 2.0 spec.
 
 =head2 List
 
@@ -295,8 +298,8 @@ sub _read_reply {
     $foo->call('argList', Hessian::Type::List->new([1,2,3]); # same as above
     $foo->call('argList', Hessian::Type::List->new(length=>3,data=>[1,2,3],type=>'Triplet');
 
-    As return value, by default, you will get array_ref;
-    when 'hessian_flag' is set, you will get Hessian::Type::List as return.
+As return value, by default, you will get array ref;
+when 'hessian_flag' is set to true, you will get Hessian::Type::List as return.
 
 =head2 Map
 
@@ -304,8 +307,8 @@ sub _read_reply {
     $foo->call('argMap', Hessian::Type::Map->new({a=>1,b=>2,c=>3} ); # same as above
     $foo->call('argMap', Hessian::Type::Map->new(type=>'HashTable',data=>{a=>1,b=>2,c=>3} ); # typed
 
-    As return value, by default, you will get hash_ref;
-    when 'hessian_flag' is set, you will get Hessian::Type::Map as return.
+As return value, by default, you will get hash ref (Tie::RefHash is used to allow non-string keys);
+when 'hessian_flag' is set to true, you will get Hessian::Type::Map as return.
 
 =head2 Object
 
@@ -319,9 +322,9 @@ sub _read_reply {
             );
     $foo->call('argObject',$y);
 
-    As return value, by default, you will get hash_ref;
-    when 'hessian_flag' is set, you will get Hessian::Type::Object as return.
-    Note, Object is essentially a typed Map.
+As return value, by default, you will get hash_ref;
+when 'hessian_flag' is set to true, you will get Hessian::Type::Object as return.
+Note, Object is essentially a typed Map.
 
 =head1 AUTHOR
 
@@ -333,7 +336,9 @@ Please report any bugs or feature requests to C<bug-hessian-tiny-client at rt.cp
 the web interface at L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Hessian-Tiny-Client>.  I will be notified, and then you'll
 automatically be notified of progress on your bug as I make changes.
 
+=head1 TODO
 
+Hessian::Tiny::Server, not sure if anyone will need to use the server part, except for testing maybe.
 
 
 =head1 SUPPORT

@@ -6,6 +6,18 @@ use Math::BigInt;
 use Config;
 use fields qw(data type len class);
 
+=head1 NAME
+
+Hessian::Tiny::Type - Hessian Types & utility routines
+
+=head1 SUBROUTINES/METHODS
+
+=head2 new
+
+base class for other types
+
+=cut
+
 sub new {
     my($class,@params) = @_;
     my $self =  1 == scalar @params

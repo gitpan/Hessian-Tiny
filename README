@@ -7,10 +7,12 @@ serve most people who wants to user hessian protocol in perl.
 (server may come later, if necessary at all)
 
 this package aim to make itself usable with little
-dependencies outside core modules.
+dependencies outside core modules (and LWP).
 
 best use with a reasonably recent Perl, i.e. 5.8.0 or later, although
 5.6.0+ should also work.
+
+
 
 INSTALLATION
 
