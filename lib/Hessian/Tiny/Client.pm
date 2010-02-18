@@ -3,15 +3,15 @@ require 5.6.0;
 use warnings;
 use strict;
 
-use URI;
-use IO::File;
-use File::Temp;
-use LWP::UserAgent;
-use HTTP::Headers;
-use HTTP::Request;
+use URI ();
+use IO::File ();
+use File::Temp ();
+use LWP::UserAgent ();
+use HTTP::Headers ();
+use HTTP::Request ();
 
-use Hessian::Tiny::ConvertorV1;
-use Hessian::Tiny::ConvertorV2;
+use Hessian::Tiny::ConvertorV1 ();
+use Hessian::Tiny::ConvertorV2 ();
 
 =head1 NAME
 
@@ -23,7 +23,7 @@ Version 1.00
 
 =cut
 
-our $VERSION = '0.03';
+our $VERSION = '0.04';
 our $ErrStr;
 
 
@@ -118,11 +118,11 @@ sub new {
 sub call {
   my($self,$method_name,@hessian_params) = @_;
 
+  $ErrStr = ''; # reset, probably not needed
 # open fh to write call
-  my($call_fh,$call_fn);
-  ($call_fh,$call_fn) = File::Temp::tempfile(
+  my $call_fh = File::Temp->new(
       UNLINK => ($self->{debug} ? 0 : 1),
-      SUFFIX => '.hessian_call.dat'
+      SUFFIX => '.htc.dat'
   );
   return 2, $self->_elog("call, open temp call file failed $!") unless defined $call_fh;
 
@@ -136,11 +136,11 @@ sub call {
     }
     1;
   }or return 2, $self->_elog("write_call: $@");
-  $self->_elog("call: written ($call_fn)");
+  $self->_elog("call: written (@{[$call_fh->filename]})");
 
-# write call successful, rewind
+# write call successful, rewind & read
   $call_fh->close;
-  $call_fh = IO::File->new($call_fn);
+  $call_fh = IO::File->new($call_fh->filename);
 
 # make LWP client
   my $ua = LWP::UserAgent->new;
@@ -152,26 +152,23 @@ sub call {
     $header->authorization_basic($self->{auth}->[0],$self->{auth}->[1]);
   }
   my $http_request = HTTP::Request->new(POST => $self->{url}, $header);
-  my $ch = '';
-  $http_request->add_content($ch) while( 1 == read $call_fh,$ch,1 );
+  my $buf = '';
+  $http_request->add_content($buf) while( 0 < read($call_fh,$buf,255));
   $call_fh->close;
 
 # send http request
-  my $http_response = $ua->request($http_request);
+  my $reply_fh = File::Temp->new(
+      UNLINK => ($self->{debug} ? 0 : 1),
+      SUFFIX => '.htr.dat'
+  );
+  return 2, $self->_elog("call, open temp reply file failed $!") unless defined $reply_fh;
+  $reply_fh->close;
+  my $http_response = $ua->request($http_request, $reply_fh->filename);
+  $self->_elog("reply written to (@{[$reply_fh->filename]})");
 
   if($http_response->is_success){
-    my $hessian_reply;
-    my($reply_fh,$reply_fn);
-    ($reply_fh,$reply_fn) = File::Temp::tempfile(
-         UNLINK => ($self->{debug} ? 0 : 1),
-         SUFFIX => '.hessian_reply.dat'
-    );
-    return 2, $self->_elog("call, open temp reply file failed $!") unless defined $reply_fh;
-    print $reply_fh $http_response->content;
-    $reply_fh->close;
-    $self->_elog("reply written to $reply_fn");
-
-    my($st,$re) = _read_reply(Hessian::Tiny::Type::_make_reader($reply_fn),$self->{hessian_flag});
+    my($st,$re) = _read_reply( Hessian::Tiny::Type::_make_reader($reply_fh->filename),
+                               $self->{hessian_flag});
     $self->_elog("Fault: $re->{code}; $re->{message}") if $st && 'Hessian::Type::Fault' eq ref $re;
     $self->_elog($re) if $st == 2;
     return $st,$re;

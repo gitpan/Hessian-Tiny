@@ -1,5 +1,6 @@
-#!/usr/bin/perl -w
+#!/usr/bin/perl
 use strict;
+use warnings;
 use Test::More tests => 1+15+15;
 use constant {
     H_SERVER1 => 'http://hessian.caucho.com/test/test',
@@ -132,7 +133,7 @@ my $Double_test = sub {
     isa_ok($res,'Hessian::Type::True', "argDouble_$n");
     ($stat,$res) = $bar->call("replyDouble_$n");
     is($stat,0);
-    is($res,eval$m);
+    ok(compare_float($res,$m));
   }
 };
 my $Date_test = sub {
@@ -168,13 +169,13 @@ my $String_test = sub {
 
   for my$n (@strings) {
     ($stat,$res) = $foo->call("replyString_$n");
-    is($stat,0,"replyString_0");
+    is($stat,0,"replyString_$n");
     isa_ok($res,'Hessian::Type::String');
     ($stat,$res2) = $bar->call("replyString_$n");
-    is($stat,0);
-    is($res2,$res->{data});
+    is($stat,0, "replyString_$n return status 0");
+    is($res2,$res->{data}, "String same with or without hessian_flag");
     ($stat,$res) = $foo->call("argString_$n",$res);
-    isa_ok($res,'Hessian::Type::True');
+    isa_ok($res,'Hessian::Type::True', "argString_$n matches replyString_$n");
     is($stat,0,"argString_$n");
   }
 };
@@ -302,6 +303,7 @@ my $Object_test = sub {
   }
 };
 
+sub compare_float { return 0.000001 > abs($_[0]-$_[1]) }
 subtest 'v1:noSuchMeth'         => \&$noSuchMeth_test;
 subtest 'v1:Null,True,False'    => \&$NullTrueFalse_test;
 subtest 'v1:Integer'            => \&$Integer_test;
