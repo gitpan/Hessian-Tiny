@@ -19,11 +19,11 @@ Hessian::Tiny::Client - Hessian Client implementation in pure Perl
 
 =head1 VERSION
 
-Version 0.05
+Version 0.06
 
 =cut
 
-our $VERSION = '0.05';
+our $VERSION = '0.06';
 our $ErrStr;
 
 
@@ -56,7 +56,7 @@ our $ErrStr;
         hessian_flag => 1, # if you need strong typing in return value
     );
 
-    argument 'url' need to be a valid url, otherwise the constructor will return undef.
+argument 'url' need to be a valid url, otherwise the constructor will return undef.
 
 
 =cut
@@ -107,11 +107,11 @@ sub new {
         print "error: $res";
     }
 
-    return value, $stat: 0 for success, 1 for Fault, 2 for communication errors;
-    $res will hold error (Hessian::Fault or string) in case of unsuccessful call;
-    $res will hold return value in case of successful call; normally Hessian types
-    are converted to perl data directly, if you want strong typing in return value,
-    you can set (hessian_flag => 1) in the constructor call new().
+return value, $stat: 0 for success, 1 for Fault, 2 for communication errors;
+$res will hold error (Hessian::Fault or string) in case of unsuccessful call;
+$res will hold return value in case of successful call; normally Hessian types
+are converted to perl data directly, if you want strong typing in return value,
+you can set (hessian_flag => 1) in the constructor call new().
 
 =cut
 
@@ -226,21 +226,16 @@ sub _read_reply {
     $foo->call('argNull', Hessian::Type::Null->new() );
 
 As return value, by default, you will get undef;
-when 'hessian_flag' is set to true, you will get Hessian::Type::Null as return.
+when 'hessian_flag' is set to true, you will get Hessian::Type::Null.
 
-=head2 True
+=head2 True/False
 
-    $foo->call('argTrue', Hessian::Type::True->new() );
-
-As return value, by default, you will get 1;
-when 'hessian_flag' is set to true, you will get Hessian::Type::True as return.
-
-=head2 False
-
+    $foo->call('argTrue',  Hessian::Type::True->new() );
     $foo->call('argFalse', Hessian::Type::False->new() );
 
-As return value, by default, you will get undef;
-when 'hessian_flag' is set to true, you will get Hessian::Type::False as return.
+As return value, by default, you will get 1;
+when 'hessian_flag' is set to true, you will get Hessian::Type::True
+or Hessian::Type::False as return value.
 
 =head2 Integer
 
@@ -256,7 +251,7 @@ it will be passed as a Long type parameter instead.
     $foo->call('argLong', Hessian::Type::Long->new('100000') ); # same as above
 
 As return value, by default, you will get string representation of the number;
-when 'hessian_flag' is set to true, you will get Math::BigInt as return.
+when 'hessian_flag' is set to true, you will get Math::BigInt.
 
 =head2 Double
 
@@ -264,7 +259,7 @@ when 'hessian_flag' is set to true, you will get Math::BigInt as return.
     $foo->call('argDouble', Hessian::Type::Double(-2.50) ); # equivalent
 
 As return value, by default, you will get the number directly;
-when 'hessian_flag' is set to true, you will get Hessian::Type::Double as return.
+when 'hessian_flag' is set to true, you will get Hessian::Type::Double.
 
 =head2 Date
 
@@ -272,7 +267,7 @@ when 'hessian_flag' is set to true, you will get Hessian::Type::Double as return
     $foo->call('argDate', DateTime->now() ); # if you have this module installed
 
 As return value, by default, you will get epoch seconds;
-when 'hessian_flag' is set to true, you will get Hessian::Type::Date as return.
+when 'hessian_flag' is set to true, you will get Hessian::Type::Date (milli sec inside).
 
 =head2 Binary/String
 
@@ -282,14 +277,14 @@ when 'hessian_flag' is set to true, you will get Hessian::Type::Date as return.
 
 As return value, by default, you will get the perl string;
 when 'hessian_flag' is set to true, you will get Hessian::Type::Binary or
-Hessian::Type::String object as return.
+Hessian::Type::String object.
 
 =head2 XML
 
     $foo->call('argXML', Hessian::Type::XML->new( $xml_string ) );
 
 As return value, by default, you will get xml string;
-when 'hessian_flag' is set to true, you will get Hessian::Type::XML as return.
+when 'hessian_flag' is set to true, you will get Hessian::Type::XML.
 Note, XML type is removed from Hessian 2.0 spec.
 
 =head2 List
@@ -299,7 +294,7 @@ Note, XML type is removed from Hessian 2.0 spec.
     $foo->call('argList', Hessian::Type::List->new(length=>3,data=>[1,2,3],type=>'Triplet');
 
 As return value, by default, you will get array ref;
-when 'hessian_flag' is set to true, you will get Hessian::Type::List as return.
+when 'hessian_flag' is set to true, you will get Hessian::Type::List.
 
 =head2 Map
 
@@ -308,7 +303,7 @@ when 'hessian_flag' is set to true, you will get Hessian::Type::List as return.
     $foo->call('argMap', Hessian::Type::Map->new(type=>'HashTable',data=>{a=>1,b=>2,c=>3} ); # typed
 
 As return value, by default, you will get hash ref (Tie::RefHash is used to allow non-string keys);
-when 'hessian_flag' is set to true, you will get Hessian::Type::Map as return.
+when 'hessian_flag' is set to true, you will get Hessian::Type::Map.
 
 =head2 Object
 
@@ -323,7 +318,7 @@ when 'hessian_flag' is set to true, you will get Hessian::Type::Map as return.
     $foo->call('argObject',$y);
 
 As return value, by default, you will get hash_ref;
-when 'hessian_flag' is set to true, you will get Hessian::Type::Object as return.
+when 'hessian_flag' is set to true, you will get Hessian::Type::Object.
 Note, Object is essentially a typed Map.
 
 =head1 AUTHOR

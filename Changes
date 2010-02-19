@@ -12,3 +12,5 @@ Revision history for Hessian-Tiny
 0.05    Thu Feb 18 06:50:23 EST 2010
         fix test cases, require Test::More 0.94 for subtest feature
 
+0.06    Thu Feb 18 22:37:09 EST 2010
+        fix pod indentation
