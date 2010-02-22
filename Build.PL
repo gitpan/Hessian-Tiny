@@ -24,7 +24,6 @@ my $builder = Module::Build->new(
         'Math::BigInt'  => 0,
         'Scalar::Util'  => 0,
         'Switch'        => 0,
-        'Test::More'    => 0,
         'Tie::RefHash'  => 0,
         'URI'           => 0,
         'perl'          => '5.6.0'

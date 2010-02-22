@@ -1,7 +1,9 @@
 package Hessian::Tiny::Client;
-require 5.6.0;
+
 use warnings;
 use strict;
+
+require 5.6.0;
 
 use URI ();
 use IO::File ();
@@ -15,15 +17,15 @@ use Hessian::Tiny::ConvertorV2 ();
 
 =head1 NAME
 
-Hessian::Tiny::Client - Hessian Client implementation in pure Perl
+Hessian::Tiny::Client - Hessian RPC Client implementation in pure Perl
 
 =head1 VERSION
 
-Version 0.06
+Version 0.07
 
 =cut
 
-our $VERSION = '0.06';
+our $VERSION = '0.07';
 our $ErrStr;
 
 
@@ -139,8 +141,9 @@ sub call {
   $self->_elog("call: written (@{[$call_fh->filename]})");
 
 # write call successful, rewind & read
+  my $call_fn = $call_fh->filename;
   $call_fh->close;
-  $call_fh = IO::File->new($call_fh->filename);
+  $call_fh = IO::File->new($call_fn);
 
 # make LWP client
   my $ua = LWP::UserAgent->new;
@@ -155,6 +158,7 @@ sub call {
   my $buf = '';
   $http_request->add_content($buf) while( 0 < read($call_fh,$buf,255));
   $call_fh->close;
+  unlink $call_fn unless $self->{debug}; # remove file
 
 # send http request
   my $reply_fh = File::Temp->new(
@@ -174,6 +178,7 @@ sub call {
     return $st,$re;
   } # if http successful
 
+  unlink $reply_fh->filename unless $self->{debug};
 # http level failure
   return 2, $self->_elog('Hessian http response unsuccessful: ',
     $http_response->status_line, $http_response->error_as_HTML);
@@ -233,7 +238,7 @@ when 'hessian_flag' is set to true, you will get Hessian::Type::Null.
     $foo->call('argTrue',  Hessian::Type::True->new() );
     $foo->call('argFalse', Hessian::Type::False->new() );
 
-As return value, by default, you will get 1;
+As return value, by default, you will get 1 (true) or undef (false);
 when 'hessian_flag' is set to true, you will get Hessian::Type::True
 or Hessian::Type::False as return value.
 
@@ -243,7 +248,7 @@ or Hessian::Type::False as return value.
 
 No extra typing for Integer type.
 Note, if the number passed in falls outside the range of signed 32-bit integer,
-it will be passed as a Long type parameter instead.
+it will be passed as a Long type parameter (64-bit) instead.
 
 =head2 Long
 
@@ -317,7 +322,7 @@ when 'hessian_flag' is set to true, you will get Hessian::Type::Map.
             );
     $foo->call('argObject',$y);
 
-As return value, by default, you will get hash_ref;
+As return value, by default, you will get hash_ref (Tie::RefHash is used to allow non-string keys);
 when 'hessian_flag' is set to true, you will get Hessian::Type::Object.
 Note, Object is essentially a typed Map.
 
@@ -343,7 +348,8 @@ You can find documentation for this module with the perldoc command.
     perldoc Hessian::Tiny::Client
 
 
-You can also look for information at:
+For information on the protocol itself, take a look at:
+	http://hessian.caucho.com/
 
 =over 4
 
@@ -368,6 +374,7 @@ L<http://search.cpan.org/dist/Hessian-Tiny-Client/>
 
 =head1 ACKNOWLEDGEMENTS
 
+Algo LLC.
 
 =head1 LICENSE AND COPYRIGHT
 
