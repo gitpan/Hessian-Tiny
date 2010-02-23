@@ -21,11 +21,11 @@ Hessian::Tiny::Client - Hessian RPC Client implementation in pure Perl
 
 =head1 VERSION
 
-Version 0.07
+Version 0.08
 
 =cut
 
-our $VERSION = '0.07';
+our $VERSION = '0.08';
 our $ErrStr;
 
 
@@ -46,6 +46,12 @@ our $ErrStr;
     ...
 
 
+=head1 DESCRIPTION
+
+Hessian is a compact binary protocol for web communication in form of client/server RPC.
+
+This module allows you to write Hessian clients in Perl. This module supports Hessian Protocol 1.0 and 2.0
+
 =head1 SUBROUTINES/METHODS
 
 =head2 new
@@ -58,8 +64,11 @@ our $ErrStr;
         hessian_flag => 1, # if you need strong typing in return value
     );
 
-argument 'url' need to be a valid url, otherwise the constructor will return undef.
-
+'url' need to be a valid url, otherwise the constructor will return undef.
+'version', hessian version either 1 or 2.
+'debug', you probably don't need to set this flag.
+'auth', if server requires this authentication.
+'hessian_flag', default off, that means return value are automatically converted into native perl data; if set to true, you will get Hessian::Type::* object as return.
 
 =cut
 
@@ -265,6 +274,7 @@ when 'hessian_flag' is set to true, you will get Math::BigInt.
 
 As return value, by default, you will get the number directly;
 when 'hessian_flag' is set to true, you will get Hessian::Type::Double.
+Note, floating point numbers may appear slightly inaccurate, due to the binary nature of machines (not the protocol itself).
 
 =head2 Date
 
