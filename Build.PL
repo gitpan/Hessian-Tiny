@@ -3,7 +3,7 @@ use warnings;
 use Module::Build;
 
 my $builder = Module::Build->new(
-    module_name         => 'Hessian::Tiny::Client',
+    module_name         => 'Hessian::Tiny',
     license             => 'perl',
     dist_author         => q{DUL <ling.du@gmail.com>},
     dist_version_from   => 'lib/Hessian/Tiny/Client.pm',

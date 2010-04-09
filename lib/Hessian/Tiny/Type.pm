@@ -66,15 +66,14 @@ sub _unpack_q { # unpack (64-bit) signed long
 sub _l2n { return $Config{'byteorder'} =~ /^1234/ ? scalar reverse $_[0] : $_[0] }
 
 sub _make_reader {
-  my $fn = shift;
-  my $fh = IO::File->new($fn);
-  binmode $fh, ':raw';
+  my $fh = shift;
+  binmode $fh, ':bytes';
   return sub {
     my($len,$utf8_flag) = @_;
+    binmode $fh, $utf8_flag ? ':utf8' : ':bytes';
     return seek $fh, $len, 1 if $len < 0; #rewind on negative len
 
     my $buf = '';
-    binmode $fh, $utf8_flag ? ':utf8' : ':raw';
     my $l = read $fh, $buf, $len;
     die "_reader: want $len but got $l" unless $len == $l;
     return $buf;
@@ -84,7 +83,7 @@ sub _make_writer {
   my $fh = shift;
   return sub {
     my($buf,$utf8_flag) = @_;
-    binmode $fh, $utf8_flag ? ':utf8' : ':raw';
+    binmode $fh, $utf8_flag ? ':utf8' : ':bytes';
     print $fh $buf;
   }
 }

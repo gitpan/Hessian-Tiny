@@ -303,7 +303,8 @@ my $Object_test = sub {
   }
 };
 
-sub compare_float { return 0.000001 > abs($_[0]-$_[1]) }
+sub compare_float { return ($_[0] == $_[1] || abs($_[0]*1e-3) > abs($_[0]-$_[1])) }
+
 subtest 'v1:noSuchMeth'         => \&$noSuchMeth_test;
 subtest 'v1:Null,True,False'    => \&$NullTrueFalse_test;
 subtest 'v1:Integer'            => \&$Integer_test;
